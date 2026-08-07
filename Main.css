@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <!-- Sangat penting untuk tampilan mobile/Android -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aplikasi Android View</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Gaya Android App Bar */
+        header {
+            background-color: #6200ee; /* Warna khas Material Design */
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Konten Utama */
+        main {
+            flex: 1;
+            padding: 16px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #6200ee;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Tombol ala Android Material */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #6200ee;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+
+        .btn:active {
+            background-color: #3700b3;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        Tampilan Aplikasi
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Selamat Datang!</h2>
+            <p>Ini adalah contoh tampilan HTML yang didesain khusus agar responsif dan nyaman dilihat di perangkat Android.</p>
+        </div>
+
+        <div class="card">
+            <h2>Fitur Tampilan</h2>
+            <p>Sudah dilengkapi dengan styling ala Material Design, tombol yang nyaman disentuh, dan font bawaan sistem Android.</p>
+        </div>
+
+        <button class="btn" onclick="alert('Tombol diklik!')">Aksi Utama</button>
+    </main>
+
+</body>
+</html>

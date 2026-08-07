@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KairosFit - 8-Bit Arcade</title>
+<!-- Google Font Retro Pixel 8-Bit -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0d0d18;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    font-family:'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* ANDROID PHONE FRAME */
+  .phone {
+    width:320px;
+    height:660px;
+    background:#111;
+    border-radius:28px;
+    padding:10px;
+    box-shadow:0 0 30px rgba(61, 45, 240, 0.25);
+    position:relative;
+  }
+
+  .screen {
+    width:100%;
+    height:100%;
+    background:#e7e7ea;
+    border-radius:20px;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* CONTAINER HALAMAN */
+  .page {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+
+  /* HALAMAN 1 */
+  #page1 {
+    opacity:1;
+    transform:translateX(0);
+    z-index:2;
+  }
+  #page1.page-hidden {
+    opacity:0;
+    transform:scale(0.8);
+  }
+
+  /* HALAMAN LOADING 8-BIT DENGAN GAMBAR 2.PNG BLUR 20% */
+  #loadingPage {
+    opacity:0;
+    pointer-events:none;
+    background:#0a0a12;
+    z-index:10;
+    justify-content:center;
+    padding:20px;
+    font-family: 'Press Start 2P', monospace;
+    color: #3d2df0;
+    position:relative;
+    overflow:hidden;
+  }
+  #loadingPage.active {
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* EFEK GAMBAR BACKGROUND 2.PNG DENGAN BLUR */
+  .loading-bg {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-image: url('.png');
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    transform: scale(1.2);
+    z-index: 1;
+    opacity: 0.6;
+  }
+
+  /* WRAPPER KONTEN LOADING AGAR DI ATAS GAMBAR BACKGROUND */
+  .loading-content {
+    position:relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* HALAMAN 2 (KAIROSFIT 8-BIT GAME) */
+  #page2 {
+    opacity:0;
+    transform:translateY(100%);
+    background:#0c0a1d;
+    color: #fff;
+    z-index:1;
+    padding: 30px 16px;
+    text-align: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', monospace;
+  }
+  #page2.page-active {
+    opacity:1;
+    transform:translateY(0);
+    z-index:3;
+  }
+
+  /* CONTENT HALAMAN 1 */
+  .text-block {
+    text-align:center;
+    padding:50px 20px 0 20px;
+    z-index:5;
+  }
+  .text-block h1 {
+    font-size:22px;
+    line-height:1.2;
+    font-weight:800;
+    color:#3d2df0;
+    margin-bottom:8px;
+  }
+  .text-block p {
+    font-size:12px;
+    color:#5a5a5f;
+  }
+
+  /* BLOBS HALAMAN 1 */
+  .blob { position:absolute; border-radius:50%; }
+  .blob-top-left {
+    width:190px; height:190px; left:-100px; top:400px;
+    background:linear-gradient(135deg,#1a1470 0%, #3a2fd6 60%, #6d5bf0 100%);
+    z-index:1;
+  }
+  .blob-right {
+    width:250px; height:250px; right:-60px; top:420px;
+    background:radial-gradient(circle at 30% 30%, #6b3fa0, #2a1350);
+    z-index:1; opacity:0.9;
+  }
+  .blob-bottom {
+    width:400px; height:400px; left:50%; transform:translateX(-50%);
+    bottom:-260px; background:linear-gradient(180deg,#3f5bff 0%, #2f46f0 100%);
+    z-index:2;
+  }
+
+  /* PERSON IMAGE CONTAINER */
+  .person-wrap {
+    position:relative;
+    z-index:4;
+    margin-top:10px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    flex:1;
+    align-items:flex-end;
+  }
+  .person-wrap img {
+    width:150px;
+    object-fit:contain;
+    object-position:bottom;
+    display:block;
+    cursor:pointer;
+    transition:all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .person-wrap img.expanded {
+    width:450px;
+    transform: translateY(20px);
+  }
+
+  /* POPUP TOMBOL LANJUT (8-BIT STYLE) */
+  .popup-btn {
+    position:absolute;
+    bottom: 45px;
+    z-index:10;
+    background:#3d2df0;
+    color:#fff;
+    border: 3px solid #fff;
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    box-shadow: 4px 4px 0px #000;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+  .popup-btn.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .popup-btn:active {
+    box-shadow: 0px 0px 0px #000;
+    transform: translate(4px, 4px);
+  }
+
+  /* 8-BIT LOADING UI */
+  .pixel-title {
+    font-size: 11px;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px #3d2df0;
+    letter-spacing: 1px;
+    line-height: 1.8;
+  }
+  .loading-box {
+    width: 100%;
+    border: 4px solid #fff;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 4px 4px 0px #3d2df0;
+  }
+  .loading-bar {
+    width: 0%;
+    height: 18px;
+    background: #3d2df0;
+    transition: width 0.05s linear;
+  }
+  .loading-text {
+    font-size: 9px;
+    margin-top: 15px;
+    color: #fff;
+    animation: blink 0.8s infinite;
+  }
+
+  /* HALAMAN 2 KAIROSFIT GAME */
+  .arcade-card {
+    border: 4px solid #3d2df0;
+    background: #141035;
+    box-shadow: 6px 6px 0px #000;
+    padding: 24px 16px;
+    margin-top: 15px;
+  }
+  .kairos-title {
+    font-size: 13px;
+    color: #fff;
+    text-shadow: 3px 3px #3d2df0;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .kairos-sub {
+    font-size: 8px;
+    color: #a5a2f8;
+    line-height: 1.8;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* GESTURE BAR */
+  .nav-bar {
+    position:absolute;
+    bottom:8px;
+    left:50%;
+    transform:translateX(-50%);
+    width:120px;
+    height:4px;
+    background:#fff;
+    border-radius:4px;
+    opacity:0.35;
+    z-index:20;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="screen">
+
+    <!-- HALAMAN 1 -->
+    <div class="page" id="page1">
+      <div class="blob blob-top-left"></div>
+      <div class="blob blob-right"></div>
+
+      <div class="text-block">
+        <h1>Easily Control<br>Your Home</h1>
+        <p>Manage your home from anytime, anywhere.</p>
+      </div>
+
+      <div class="person-wrap">
+        <img src="1.png" alt="Person" id="personImg" onclick="toggleZoom(this)">
+      </div>
+
+      <!-- Pop-up Tombol Lanjut (8-Bit) -->
+      <button class="popup-btn" id="nextBtn" onclick="start8BitLoading()">> LANJUT</button>
+
+      <div class="blob blob-bottom"></div>
+    </div>
+
+    <!-- HALAMAN LOADING 8-BIT -->
+    <div class="page" id="loadingPage">
+      <!-- Background Gambar 2.png Blur -->
+      <div class="loading-bg"></div>
+
+      <!-- Konten Teks Loading -->
+      <div class="loading-content">
+        <div class="pixel-title">KAIROSFIT<br>LOADING...</div>
+        <div class="loading-box">
+          <div class="loading-bar" id="progressBar"></div>
+        </div>
+        <div class="loading-text" id="loadingPercent">0%</div>
+      </div>
+    </div>
+
+    <!-- HALAMAN 2 (KAIROSFIT ARCADE GAME) -->
+    <div class="page" id="page2">
+      <div class="kairos-title">KAIROSFIT<br>ARCADE</div>
+      
+      <div class="arcade-card">
+        <p class="kairos-sub">STAGE 1: HOME CONTROL SYSTEM READY!</p>
+      </div>
+    </div>
+
+    <div class="nav-bar"></div>
+  </div>
+</div>
+
+<script>
+  function toggleZoom(img) {
+    const nextBtn = document.getElementById('nextBtn');
+    
+    img.classList.toggle('expanded');
+    
+    if (img.classList.contains('expanded')) {
+      setTimeout(() => {
+        nextBtn.classList.add('show');
+      }, 300);
+    } else {
+      nextBtn.classList.remove('show');
+    }
+  }
+
+  function start8BitLoading() {
+    const page1 = document.getElementById('page1');
+    const loadingPage = document.getElementById('loadingPage');
+    const page2 = document.getElementById('page2');
+    const progressBar = document.getElementById('progressBar');
+    const loadingPercent = document.getElementById('loadingPercent');
+
+    page1.classList.add('page-hidden');
+    loadingPage.classList.add('active');
+
+    let progress = 0;
+    // Berjalan total 6 detik (100 iterasi * 60ms = 6000ms)
+    const interval = setInterval(() => {
+      progress += 1;
+
+      progressBar.style.width = progress + '%';
+      loadingPercent.innerText = progress + '%';
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          loadingPage.classList.remove('active');
+          page2.classList.add('page-active');
+        }, 300);
+      }
+    }, 60);
+  }
+</script>
+
+</body>
+</html>

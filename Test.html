@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Buat Fia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+
+    :root {
+      --bg-retro: #6e6763;
+      --window-bg: #f5eedc;
+      --header-orange: #dd6e42;
+      --header-blue: #3d2df0;
+      --header-yellow: #e8ae48;
+      --text-black: #211a1d;
+      --border-dark: #211a1d;
+      --hm-pink: #ff80b3;
+      --hm-blue: #5ba3f5;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Press Start 2P', monospace;
+      color: var(--text-black);
+    }
+
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    /* === HALAMAN 1: HARVEST MOON TITLE SCREEN === */
+    #page1 {
+      opacity: 1; 
+      transform: translateX(0); 
+      z-index: 50; 
+      background: var(--hm-blue);
+      overflow: hidden; 
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 20px 20px 20px;
+      position: relative;
+    }
+    #page1.page-hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
+
+    .sky-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 20% 30%, #ffffff 0%, #ffffff 12%, transparent 13%),
+                  radial-gradient(circle at 80% 20%, #ffffff 0%, #ffffff 10%, transparent 11%),
+                  radial-gradient(circle at 50% 60%, #ffffff 0%, #ffffff 15%, transparent 16%);
+      opacity: 0.35;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .title-logo-wrap {
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .wooden-sign {
+      background: #c87d32;
+      border: 4px solid #3d1e03;
+      box-shadow: 6px 6px 0px #000;
+      padding: 16px 20px;
+      border-radius: 12px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 3px 3px 0px #3d1e03;
+    }
+
+    .wooden-sign h1 {
+      font-size: 17px;
+      line-height: 1.4;
+      color: #ffeb3b;
+    }
+
+    .title-menu {
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .menu-item-btn {
+      background: transparent;
+      border: none;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: #ffffff;
+      text-shadow: 
+        2px 2px 0px var(--hm-pink),
+        -2px -2px 0px var(--hm-pink),
+        2px -2px 0px var(--hm-pink),
+        -2px 2px 0px var(--hm-pink),
+        3px 3px 0px #000000;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: transform 0.1s;
+    }
+
+    .menu-item-btn:active {
+      transform: scale(0.95);
+      color: #ffeb3b;
+    }
+
+    .copyright-text {
+      z-index: 5;
+      font-size: 7px;
+      color: #1a3c70;
+      text-align: center;
+      line-height: 1.6;
+      font-weight: bold;
+    }
+
+    /* === MODAL KARAKTER FIA === */
+    .character-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 55;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+
+    /* === ELEMEN WINDOW RETRO OS === */
+    .retro-window {
+      background: var(--window-bg);
+      border: 3px solid var(--border-dark);
+      box-shadow: 6px 6px 0px var(--border-dark);
+      width: 90%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 5;
+    }
+
+    .retro-window-header {
+      background: var(--header-blue);
+      height: 30px;
+      border-bottom: 3px solid var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      font-size: 9px;
+      color: #fff;
+    }
+
+    .retro-window-header.orange { background: var(--header-orange); }
+
+    .window-title { display: flex; align-items: center; gap: 6px; }
+    .window-controls { display: flex; gap: 4px; }
+
+    .win-btn {
+      width: 16px; height: 16px; background: var(--window-bg); border: 2px solid var(--border-dark);
+      font-size: 7px; line-height: 12px; text-align: center; cursor: pointer; color: var(--text-black); font-weight: bold;
+    }
+
+    .retro-window-body {
+      padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+
+    .text-block { text-align: center; z-index: 5; transition: transform 0.4s ease; }
+    .text-block.shifted { transform: translateY(5px); }
+    .text-block h1 { font-size: 12px; font-weight: 800; color: #3d2df0; margin-bottom: 6px; line-height: 1.4; }
+    .text-block p { font-size: 9px; color: #5a5a5f; font-family: sans-serif; }
+
+    .person-wrap {
+      position: relative; z-index: 4; margin: 12px 0; width: 100%; display: flex; justify-content: center;
+    }
+    .person-wrap img {
+      width: 130px; height: 180px; object-fit: contain; object-position: bottom;
+      cursor: pointer; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .person-wrap img.expanded { width: 175px; height: 240px; }
+
+    .popup-btn {
+      background: var(--header-blue); color: #fff; border: 3px solid var(--border-dark);
+      box-shadow: 4px 4px 0px var(--border-dark); padding: 10px 18px; font-weight: bold; font-size: 9px;
+      cursor: pointer; opacity: 0; transform: translateY(20px); pointer-events: none; transition: all 0.3s ease;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .popup-btn.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .popup-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--border-dark); }
+
+    /* === HALAMAN LOADING === */
+    #loadingPage {
+      opacity: 0; 
+      pointer-events: none; 
+      background: transparent; 
+      z-index: 60;
+      justify-content: center; 
+      align-items: center; 
+      position: relative;
+    }
+    #loadingPage.active { opacity: 1; pointer-events: auto; }
+    
+    .loading-bg {
+      position: absolute; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%;
+      background-image: url('Iso.png'); 
+      background-size: cover; 
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(4px); 
+      transform: scale(1.05); 
+      z-index: 1; 
+      opacity: 1;
+    }
+
+    .loading-box {
+      width: 100%; height: 18px; border: 2px solid var(--border-dark);
+      background: #fff; padding: 2px; margin-top: 12px;
+    }
+    .loading-bar { width: 0%; height: 100%; background: var(--header-orange); transition: width 0.05s linear; }
+
+    /* === GAME CANVAS === */
+    #gamePage { opacity: 0; pointer-events: none; z-index: 10; background-color: #111; }
+    #gamePage.active { opacity: 1; pointer-events: auto; }
+    #gameCanvas { display: block; width: 100vw; height: 100vh; }
+
+    /* === UI KONTROL GAME === */
+    .game-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+
+    .checkpoint-hud {
+      position: absolute; top: 15px; left: 15px; background: var(--window-bg); border: 2px solid var(--border-dark);
+      box-shadow: 3px 3px 0px var(--border-dark); color: var(--text-black); padding: 6px 10px;
+      font-size: 8px;
+      pointer-events: auto;
+    }
+    
+    .btn-audio {
+      position: absolute; top: 15px; right: 15px; width: 38px; height: 38px;
+      background: var(--window-bg); border: 2px solid var(--border-dark); box-shadow: 3px 3px 0px var(--border-dark);
+      color: var(--text-black); font-size: 16px; display: flex; align-items: center; justify-content: center;
+      pointer-events: auto; cursor: pointer;
+    }
+
+    .controls-bottom {
+      position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    
+    .d-pad { display: flex; gap: 10px; pointer-events: auto; }
+    
+    .control-btn {
+      width: 52px; height: 52px;
+      background: var(--window-bg); border: 3px solid var(--border-dark);
+      box-shadow: 3px 3px 0px var(--border-dark); color: var(--text-black); font-size: 20px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+
+    #btnInteract {
+      height: 52px; padding: 0 16px; background: #ffffff; color: var(--text-black); font-weight: 800; font-size: 10px;
+      font-family: 'Press Start 2P', monospace; border: 3px solid var(--border-dark); box-shadow: 3px 3px 0px var(--border-dark);
+      pointer-events: auto; display: none; cursor: pointer; animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+
+    /* === MODAL POP-UP OVERLAY CHECKPOINT === */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7); z-index: 100; flex-direction: column; justify-content: center; align-items: center;
+      backdrop-filter: blur(4px); cursor: pointer;
+    }
+
+    .media-container {
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+
+    .media-box {
+      max-width: 85vw; max-height: 70vh; background: transparent;
+      filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.6)); object-fit: contain; border-radius: 8px; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    /* TOMBOL SLIDER (PANAH KANAN KIRI) */
+    .slider-controls {
+      display: flex;
+      gap: 20px;
+      margin-top: 15px;
+      pointer-events: auto;
+      z-index: 105;
+    }
+
+    .slider-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--window-bg);
+      border: 3px solid var(--border-dark);
+      box-shadow: 3px 3px 0px var(--border-dark);
+      color: var(--text-black);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .slider-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--border-dark);
+    }
+
+    /* === MODAL REWARD TRANSPARAN === */
+    .reward-overlay {
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; 
+      width: 100vw; height: 100vh;
+      background: transparent; 
+      z-index: 300; 
+      justify-content: center; 
+      align-items: center; 
+      pointer-events: none; 
+    }
+
+    .reward-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto; 
+    }
+
+    .reward-close-btn {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 30px;
+      height: 30px;
+      background: var(--header-orange);
+      border: 3px solid var(--border-dark);
+      box-shadow: 3px 3px 0px var(--border-dark);
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 310;
+    }
+    .reward-close-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--border-dark);
+    }
+
+    .loading-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #0a0a12; z-index: 200; flex-direction: column; justify-content: center;
+      align-items: center; opacity: 0; transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="bgMusic" src="main.mp3" loop preload="auto"></audio>
+  <audio id="popupMusic" src="popup.mp3" loop preload="auto"></audio>
+
+  <!-- HALAMAN 1: HARVEST MOON TITLE SCREEN STYLE -->
+  <div class="page" id="page1">
+    <div class="sky-bg"></div>
+
+    <div class="title-logo-wrap">
+      <div class="wooden-sign">
+        <h1>PETUALANGAN<br>FIA</h1>
+      </div>
+    </div>
+
+    <div class="title-menu">
+      <button class="menu-item-btn" onclick="openCharacterModal()">START</button>
+    </div>
+
+    <div class="copyright-text">
+      © 2026 FOR FIA<br>
+      ALL RIGHTS RESERVED
+    </div>
+  </div>
+
+  <!-- MODAL INTERAKTIF KARAKTER FIA -->
+  <div class="character-modal" id="characterModal">
+    <div class="retro-window">
+      <div class="retro-window-header">
+        <div class="window-title">📁 KairosFit.exe</div>
+        <div class="window-controls">
+          <div class="win-btn" onclick="closeCharacterModal()">x</div>
+        </div>
+      </div>
+      <div class="retro-window-body">
+        <div class="text-block" id="textBlock">
+          <h1>Sentuh Karakter<br>Untuk Mulai</h1>
+          <p>Klik gambar di bawah untuk membesarkan!</p>
+        </div>
+        <div class="person-wrap">
+          <img src="1.png" alt="Person" id="personImg" onclick="changeImage(this)">
+        </div>
+        <button class="popup-btn" id="nextBtn" onclick="start8BitLoading()">MULAI PETUALANGAN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HALAMAN 2: LOADING PAGE (BACKGROUND ISO.PNG BLUR) -->
+  <div class="page" id="loadingPage">
+    <div class="loading-bg"></div>
+    <div class="retro-window" style="z-index: 2;">
+      <div class="retro-window-header orange">
+        <div class="window-title">⏳ Loading Game...</div>
+        <div class="window-controls"><div class="win-btn">x</div></div>
+      </div>
+      <div class="retro-window-body">
+        <div style="font-size:9px;">MEMUAT ASET...</div>
+        <div class="loading-box">
+          <div class="loading-bar" id="progressBar"></div>
+        </div>
+        <div style="font-size:9px; margin-top:10px;" id="loadingPercent">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HALAMAN 3: GAME CANVAS -->
+  <div class="page" id="gamePage">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="game-ui">
+      <div class="checkpoint-hud" id="hudProgress">CHECKPOINT: 0 / 8</div>
+      <div class="btn-audio" id="btnAudio">🔊</div>
+      
+      <div class="controls-bottom">
+        <div class="d-pad">
+          <button class="control-btn" id="btnLeft">◀</button>
+          <button class="control-btn" id="btnRight">▶</button>
+        </div>
+        <button id="btnInteract">BUKA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CHECKPOINT DENGAN TOMBOL SLIDER -->
+  <div class="modal-overlay" id="modalPopup" onclick="closeModalOnOutsideClick(event, 'modalPopup')">
+    <div class="media-container" onclick="event.stopPropagation()">
+      <img src="" alt="Media Checkpoint" class="media-box" id="modalImage" style="display:none;">
+      <video src="" class="media-box" id="modalVideo" style="display:none;" autoplay loop muted playsinline></video>
+      
+      <!-- TOMBOL SLIDER POP-UP -->
+      <div class="slider-controls" id="sliderControls" style="display: none;">
+        <button class="slider-btn" onclick="prevSlideImage()">◀</button>
+        <button class="slider-btn" onclick="nextSlideImage()">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REWARD TRANSPARAN -->
+  <div class="reward-overlay" id="rewardPopup">
+    <div class="reward-container">
+      <div class="reward-close-btn" onclick="closeRewardModal()">X</div>
+      <video src="gg.mp4" class="media-box" id="rewardVideo" style="display:block;" playsinline></video>
+    </div>
+  </div>
+
+  <!-- OVERLAY LOADING MAP -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="retro-window" style="width:240px;">
+      <div class="retro-window-header">
+        <div class="window-title">Please Wait...</div>
+      </div>
+      <div class="retro-window-body">
+        <div style="font-size:9px;">MEMUAT AREA BARU...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === 1. MODAL KARAKTER FIA ===
+    function openCharacterModal() {
+      playMusic();
+      document.getElementById('characterModal').style.display = 'flex';
+    }
+
+    function closeCharacterModal() {
+      document.getElementById('characterModal').style.display = 'none';
+    }
+
+    let isImageChanged = false;
+    function changeImage(img) {
+      const nextBtn = document.getElementById('nextBtn'), textBlock = document.getElementById('textBlock');
+      if (!isImageChanged) {
+        img.src = '1_alt.png'; img.classList.add('expanded'); textBlock.classList.add('shifted');
+        isImageChanged = true; setTimeout(() => nextBtn.classList.add('show'), 300);
+      } else {
+        img.src = '1.png'; img.classList.remove('expanded'); textBlock.classList.remove('shifted');
+        isImageChanged = false; nextBtn.classList.remove('show');
+      }
+    }
+
+    // === 2. INTRO LOADING (DURASI EXACT 6 DETIK) ===
+    let isGameStarted = false;
+    function start8BitLoading() {
+      closeCharacterModal();
+      document.getElementById('page1').classList.add('page-hidden');
+      document.getElementById('loadingPage').classList.add('active');
+      
+      let progress = 0;
+      const totalDuration = 6000; // 6000 milidetik = 6 detik
+      const intervalTime = 50;   // Update progress tiap 50ms
+      const increment = 100 / (totalDuration / intervalTime);
+
+      const interval = setInterval(() => {
+        progress += increment;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            document.getElementById('loadingPage').classList.remove('active');
+            document.getElementById('gamePage').classList.add('active');
+            isGameStarted = true; 
+            resizeCanvas();
+          }, 300);
+        }
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('loadingPercent').innerText = Math.floor(progress) + '%';
+      }, intervalTime);
+    }
+
+    // === 3. AUDIO MANAGEMENT ===
+    const bgMusic = document.getElementById('bgMusic');
+    const popupMusic = document.getElementById('popupMusic');
+    const btnAudio = document.getElementById('btnAudio');
+    let isAudioMuted = false;
+
+    function playMusic() { 
+      if (!isAudioMuted) bgMusic.play().catch(()=>console.log("Autoplay block")); 
+    }
+    
+    function switchMusicToPopup() {
+      bgMusic.pause();
+      if (!isAudioMuted) {
+        popupMusic.play().catch(()=>console.log("Autoplay block"));
+      }
+    }
+
+    function switchMusicToMain() {
+      popupMusic.pause();
+      if (!isAudioMuted) {
+        bgMusic.play().catch(()=>console.log("Autoplay block"));
+      }
+    }
+
+    function stopAllMusicForVideo() {
+      bgMusic.pause();
+      popupMusic.pause();
+    }
+
+    btnAudio.addEventListener('click', () => {
+      if (isAudioMuted) {
+        isAudioMuted = false;
+        btnAudio.innerText = '🔊';
+        if (isPaused) popupMusic.play();
+        else bgMusic.play();
+      } else {
+        isAudioMuted = true;
+        btnAudio.innerText = '🔇';
+        bgMusic.pause();
+        popupMusic.pause();
+      }
+    });
+
+    // === 4. GAME ENGINE & MAP CONFIG ===
+    const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+
+    const WORLD_WIDTH = 8000, WORLD_HEIGHT = 1000, TOTAL_CHECKPOINTS = 8;
+    const visitedCheckpoints = new Set();
+    let isRewardActive = false;
+
+    const maps = {
+      mapA: { bgSrc: 'wa.png', checkpoints: [
+          { id: 1, x: 2500, radius: 35, triggerDistance: 100, label: "Ada Kucing", images: ["CP1A.png", "CP1B.png"] },
+          { id: 2, x: 5000, radius: 35, triggerDistance: 100, label: "Polaroid", images: ["CP2A.gif", "CP2B.png"] },
+          { id: 3, x: 7700, radius: 35, triggerDistance: 100, label: "Kerja Rodi", images: ["CP3A.png", "CP3B.png"] }
+      ]},
+      mapB: { bgSrc: 'wb.png', checkpoints: [
+          { id: 4, x: 1500, radius: 35, triggerDistance: 100, label: "Centil", images: ["CP4A.png", "CP4B.png"] },
+          { id: 5, x: 3000, radius: 35, triggerDistance: 100, label: "Photobox", images: ["CP5A.gif", "CP5B.png"] },
+          { id: 6, x: 4500, radius: 35, triggerDistance: 100, label: "Platipus", images: ["CP6A.png", "CP6B.png"] },
+          { id: 7, x: 6000, radius: 35, triggerDistance: 100, label: "VHS", images: ["CP7A.gif", "CP7B.png"] },
+          { id: 8, x: 7000, radius: 35, triggerDistance: 100, label: "POP", images: ["CP8A.png", "CP8B.png"] }
+      ]}
+    };
+    const rewardItem = { x: 7150, radius: 40, triggerDistance: 120, label: "🎁 SELESAI" };
+
+    let currentMapKey = 'mapA', currentMap = maps[currentMapKey];
+    const bgImage = new Image(); bgImage.src = currentMap.bgSrc;
+
+    let activeContactPoint = null, isNearReward = false, isTransitioning = false, isPaused = false;
+    const charSprites = { idle: new Image(), walk: [new Image(), new Image(), new Image()] };
+    charSprites.idle.src = 'C1.png'; charSprites.walk[0].src = 'C2.png'; charSprites.walk[1].src = 'C3.png'; charSprites.walk[2].src = 'C4.png';
+
+    const player = { x: 100, width: 200, height: 300, speed: 5, direction: 'right', isMoving: false, frameCounter: 0, walkFrameIndex: 0 };
+    let cameraX = 0; const input = { left: false, right: false };
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+      if (isPaused || isTransitioning || !isGameStarted) return;
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = true;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = true;
+      if (e.code === 'KeyE' || e.code === 'Enter' || e.code === 'Space') triggerInteract();
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = false;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = false;
+    });
+
+    // Touch & Mouse Controls
+    const bindControl = (elem, key) => {
+      const press = (e) => { e.preventDefault(); input[key] = true; };
+      const release = (e) => { e.preventDefault(); input[key] = false; };
+      elem.addEventListener('touchstart', press, {passive: false});
+      elem.addEventListener('touchend', release);
+      elem.addEventListener('mousedown', press);
+      elem.addEventListener('mouseup', release);
+      elem.addEventListener('mouseleave', release);
+    };
+    bindControl(document.getElementById('btnLeft'), 'left');
+    bindControl(document.getElementById('btnRight'), 'right');
+
+    const btnInteract = document.getElementById('btnInteract');
+    btnInteract.addEventListener('mousedown', triggerInteract);
+    btnInteract.addEventListener('touchstart', (e) => { e.preventDefault(); triggerInteract(); }, {passive:false});
+
+    function updateHUD() {
+      document.getElementById('hudProgress').innerText = `CHECKPOINT: ${visitedCheckpoints.size} / ${TOTAL_CHECKPOINTS}`;
+    }
+
+    let currentImageArray = [];
+    let currentImageIndex = 0;
+
+    function triggerInteract() {
+      if (isNearReward && isRewardActive) openRewardModal();
+      else if (activeContactPoint) {
+        visitedCheckpoints.add(activeContactPoint.id);
+        updateHUD();
+
+        switchMusicToPopup();
+
+        const imgElem = document.getElementById('modalImage');
+        const videoElem = document.getElementById('modalVideo');
+        const sliderControls = document.getElementById('sliderControls');
+
+        videoElem.pause();
+        videoElem.style.display = 'none';
+        imgElem.style.display = 'none';
+        sliderControls.style.display = 'none';
+
+        if (activeContactPoint.images && activeContactPoint.images.length > 0) {
+          currentImageArray = activeContactPoint.images;
+          currentImageIndex = 0;
+          imgElem.src = currentImageArray[currentImageIndex];
+          imgElem.style.display = 'block';
+          sliderControls.style.display = 'flex';
+        } else {
+          const fileSrc = activeContactPoint.src || 'CP1.png';
+          const isVideo = fileSrc.endsWith('.mp4') || fileSrc.endsWith('.webm') || fileSrc.endsWith('.ogg');
+
+          if (isVideo) {
+            videoElem.style.display = 'block';
+            videoElem.src = fileSrc;
+            videoElem.currentTime = 0;
+            videoElem.loop = true;
+            videoElem.play().catch(e => console.log("Video Autoplay Blocked:", e));
+          } else {
+            imgElem.style.display = 'block';
+            imgElem.src = fileSrc;
+          }
+        }
+
+        document.getElementById('modalPopup').style.display = 'flex';
+        isPaused = true; input.left = false; input.right = false;
+      }
+    }
+
+    // LOGIKA SLIDER / SWIPE GAMBAR
+    function switchSlideImage(newIndex) {
+      const imgElem = document.getElementById('modalImage');
+      imgElem.style.opacity = '0';
+      setTimeout(() => {
+        currentImageIndex = newIndex;
+        imgElem.src = currentImageArray[currentImageIndex];
+        imgElem.style.opacity = '1';
+      }, 150);
+    }
+
+    function nextSlideImage() {
+      if (currentImageArray.length <= 1) return;
+      let nextIndex = (currentImageIndex + 1) % currentImageArray.length;
+      switchSlideImage(nextIndex);
+    }
+
+    function prevSlideImage() {
+      if (currentImageArray.length <= 1) return;
+      let prevIndex = (currentImageIndex - 1 + currentImageArray.length) % currentImageArray.length;
+      switchSlideImage(prevIndex);
+    }
+
+    let startX = 0;
+    let isDragging = false;
+    const modalMediaContainer = document.querySelector('.media-container');
+
+    modalMediaContainer.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    }, { passive: true });
+
+    modalMediaContainer.addEventListener('touchend', (e) => {
+      if (!isDragging) return;
+      let endX = e.changedTouches[0].clientX;
+      handleSwipe(startX, endX);
+      isDragging = false;
+    });
+
+    modalMediaContainer.addEventListener('mousedown', (e) => {
+      startX = e.clientX;
+      isDragging = true;
+    });
+
+    modalMediaContainer.addEventListener('mouseup', (e) => {
+      if (!isDragging) return;
+      let endX = e.clientX;
+      handleSwipe(startX, endX);
+      isDragging = false;
+    });
+
+    function handleSwipe(start, end) {
+      const threshold = 40;
+      if (start - end > threshold) nextSlideImage();
+      else if (end - start > threshold) prevSlideImage();
+    }
+
+    function closeModalOnOutsideClick(event, modalId) {
+      if (event.target.id === modalId) {
+        if (modalId === 'modalPopup') closeModal();
+      }
+    }
+
+    function closeModal() {
+      const videoElem = document.getElementById('modalVideo');
+      videoElem.pause();
+      document.getElementById('modalPopup').style.display = 'none';
+      isPaused = false;
+      switchMusicToMain();
+    }
+
+    function openRewardModal() {
+      stopAllMusicForVideo();
+      const rewardVid = document.getElementById('rewardVideo');
+      rewardVid.currentTime = 0;
+      rewardVid.play().catch(e=>console.log("Reward video play blocked:", e));
+      document.getElementById('rewardPopup').style.display = 'flex';
+      isPaused = true; input.left = false; input.right = false;
+
+      rewardVid.onended = function() {
+        closeRewardModal();
+        resetGameToTitle();
+      };
+    }
+
+    function closeRewardModal() {
+      const rewardVid = document.getElementById('rewardVideo');
+      rewardVid.pause();
+      document.getElementById('rewardPopup').style.display = 'none';
+      isPaused = false;
+      switchMusicToMain();
+    }
+
+    function resetGameToTitle() {
+      visitedCheckpoints.clear();
+      updateHUD();
+      isRewardActive = false;
+      currentMapKey = 'mapA';
+      currentMap = maps[currentMapKey];
+      bgImage.src = currentMap.bgSrc;
+      player.x = 100;
+      player.direction = 'right';
+      cameraX = 0;
+      isGameStarted = false;
+
+      document.getElementById('gamePage').classList.remove('active');
+      document.getElementById('page1').classList.remove('page-hidden');
+    }
+
+    function loadNextMap(nextMapKey, startPosition) {
+      if (isTransitioning) return;
+      isTransitioning = true; isPaused = true; input.left = false; input.right = false;
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.style.display = 'flex'; setTimeout(() => overlay.style.opacity = '1', 10);
+      
+      const nextMap = maps[nextMapKey];
+      const tempImg = new Image(); tempImg.src = nextMap.bgSrc;
+      tempImg.onload = () => {
+        setTimeout(() => {
+          bgImage.src = nextMap.bgSrc; currentMapKey = nextMapKey; currentMap = nextMap;
+          player.x = startPosition; 
+          player.direction = (startPosition > 100) ? 'left' : 'right';
+          cameraX = (startPosition > 100) ? WORLD_WIDTH - canvas.width : 0;
+          overlay.style.opacity = '0';
+          setTimeout(() => { overlay.style.display = 'none'; isTransitioning = false; isPaused = false; }, 500);
+        }, 800);
+      };
+    }
+
+    function update() {
+      if (isPaused || isTransitioning || !isGameStarted) return;
+      player.isMoving = false;
+      if (input.right) { player.x += player.speed; player.direction = 'right'; player.isMoving = true; } 
+      else if (input.left) { player.x -= player.speed; player.direction = 'left'; player.isMoving = true; }
+
+      if (currentMapKey === 'mapA' && player.x + player.width >= WORLD_WIDTH) {
+        loadNextMap('mapB', 100);
+      } 
+      else if (currentMapKey === 'mapB' && player.x <= 0) {
+        loadNextMap('mapA', WORLD_WIDTH - player.width - 150);
+      }
+      
+      if (currentMapKey === 'mapA' && player.x < 0) player.x = 0;
+      if (currentMapKey === 'mapB' && player.x + player.width > WORLD_WIDTH * 0.9) player.x = WORLD_WIDTH * 0.9 - player.width;
+
+      if (player.isMoving) {
+        player.frameCounter++;
+        if (player.frameCounter >= 8) { player.walkFrameIndex = (player.walkFrameIndex + 1) % 3; player.frameCounter = 0; }
+      } else { player.walkFrameIndex = 0; player.frameCounter = 0; }
+
+      cameraX = player.x + (player.width / 2) - (canvas.width / 2);
+      if (cameraX < 0) cameraX = 0;
+      if (cameraX > WORLD_WIDTH - canvas.width) cameraX = WORLD_WIDTH - canvas.width;
+
+      if (visitedCheckpoints.size >= TOTAL_CHECKPOINTS) isRewardActive = true;
+      const playerCenterX = player.x + (player.width / 2);
+      activeContactPoint = null; isNearReward = false;
+
+      if (currentMapKey === 'mapB' && isRewardActive && Math.abs(playerCenterX - rewardItem.x) <= rewardItem.triggerDistance) isNearReward = true;
+      for (let point of currentMap.checkpoints) {
+        if (Math.abs(playerCenterX - point.x) <= point.triggerDistance) { activeContactPoint = point; break; }
+      }
+
+      if (activeContactPoint || isNearReward) {
+        btnInteract.style.display = 'block';
+        btnInteract.innerText = isNearReward ? "AMBIL" : "BUKA";
+      } else btnInteract.style.display = 'none';
+    }
+
+    let pulseAnim = 0;
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!isGameStarted) return;
+      
+      ctx.drawImage(bgImage, cameraX, WORLD_HEIGHT - canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+      
+      const checkpointY = canvas.height - 60; // Posisi lingkaran checkpoint tepat 60px dari dasar layar
+      pulseAnim += 0.05;
+
+      for (let point of currentMap.checkpoints) {
+        const cx = point.x - cameraX;
+        if (cx >= -100 && cx <= canvas.width + 100) {
+          const isVisited = visitedCheckpoints.has(point.id);
+          ctx.beginPath(); 
+          ctx.arc(cx, checkpointY, point.radius + Math.sin(pulseAnim)*4, 0, Math.PI*2);
+          ctx.fillStyle = isVisited ? 'rgba(46, 213, 115, 0.3)' : 'rgba(232, 174, 72, 0.4)'; 
+          ctx.fill();
+          ctx.lineWidth = 2; 
+          ctx.strokeStyle = isVisited ? '#2ed573' : '#211a1d'; 
+          ctx.stroke();
+
+          ctx.fillStyle = '#fff'; 
+          ctx.font = '500 12px sans-serif'; 
+          ctx.textAlign = 'center';
+          ctx.fillText(isVisited ? point.label + " ✓" : point.label, cx, checkpointY + 5);
+        }
+      }
+
+      if (currentMapKey === 'mapB' && isRewardActive) {
+        const rx = rewardItem.x - cameraX;
+        if (rx >= -100 && rx <= canvas.width + 100) {
+          ctx.beginPath(); ctx.arc(rx, checkpointY - 10, rewardItem.radius + Math.sin(pulseAnim*2)*6, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(241, 196, 15, 0.4)'; ctx.fill();
+          ctx.lineWidth = 3; ctx.strokeStyle = '#211a1d'; ctx.stroke();
+          ctx.fillStyle = '#fff'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🎁', rx, checkpointY - 2);
+          ctx.font = 'bold 12px sans-serif'; ctx.fillStyle = '#f1c40f'; ctx.fillText(rewardItem.label, rx, checkpointY - 55);
+        }
+      }
+
+      let activeSprite = player.isMoving ? charSprites.walk[player.walkFrameIndex] : charSprites.idle;
+      
+      const playerBottomOffset = (currentMapKey === 'mapA') ? 10 : 40;
+      const screenX = player.x - cameraX;
+      const screenY = canvas.height - player.height - playerBottomOffset;
+
+      ctx.save();
+      if (player.direction === 'left') {
+        ctx.translate(screenX + player.width / 2, screenY + player.height / 2); ctx.scale(-1, 1);
+        ctx.drawImage(activeSprite, -player.width / 2, -player.height / 2, player.width, player.height);
+      } else {
+        ctx.drawImage(activeSprite, screenX, screenY, player.width, player.height);
+      }
+      ctx.restore();
+
+      // Floating hint di atas kepala karakter
+      if (activeContactPoint || isNearReward) {
+        const hintX = screenX + (player.width / 2);
+        const hintY = screenY - 15 + Math.sin(pulseAnim * 3) * 5;
+        ctx.fillStyle = '#ffeb3b';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("▼ INTERAKSI", hintX, hintY);
+      }
+    }
+
+    function gameLoop() { update(); render(); requestAnimationFrame(gameLoop); }
+    gameLoop();
+  </script>
+</body>
+</html>
